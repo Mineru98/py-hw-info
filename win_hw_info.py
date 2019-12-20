@@ -1,27 +1,26 @@
-import os
 import platform
 import winreg as reg
-# 윈도우 각 플랫폼에 맞게 레지스트리 구조가 변경 되는지 알아보고 그에 맞게 정보를 가져오는 코드를 짜봅시다.
 
-key = reg.HKEY_CURRENT_USER
-key_value = "Software\Microsoft\Windows\CurrentVersion\Internet Settings"
+if platform.system() == "Windows":
+    key = reg.HKEY_LOCAL_MACHINE
+    # 윈도우 각 플랫폼에 맞게 레지스트리 구조가 변경 되는지 알아보고 그에 맞게 정보를 가져오는 코드를 짜봅시다.
+    if platform.release() == "10":
+        # CPU Model Name Check
+        key_value = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"
+        open = reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS)
+        value = reg.QueryValueEx(open,"ProcessorNameString")
+        print("CPU Name:",value)
+        
+        # Mother Board Model Name Check
+        key_value = "HARDWARE\\DESCRIPTION\\System\\BIOS"
+        open = reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS)
+        value = reg.QueryValueEx(open,"BaseBoardProduct")
+        print("MainBaord Name:",value)
 
-open = reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS)
+        # Drive Model Name Check
+        key_value = "SYSTEM\\CurrentControlSet\\Enum\\SCSI\\[?]\\[?]"
+        open = reg.OpenKey(key,key_value,0,reg.KEY_ALL_ACCESS)
+        value = reg.QueryValueEx(open,"FriendlyName")
+        print("Drive Name:",value)
 
-value, type = reg.QueryValueEx(open,"User Agent")
-print(value,"Type:",type)
-
-try:
-    value, type = reg.QueryValueEx(open,"AutoConfigURL")
-    print("AutoConfigURL",value,"Type:",type)
-except FileNotFoundError:
-    print("AutoConfigURL not found")
-
-try:
-    value, type = reg.QueryValueEx(open,"ProxyServer")
-    print("ProxyServer",value,"Type:",type)
-except FileNotFoundError:
-    print("ProxyServer not found")
-
-# now close the opened key 
-reg.CloseKey(open)
+        reg.CloseKey(open)

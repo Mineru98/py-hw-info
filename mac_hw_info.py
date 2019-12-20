@@ -1,4 +1,4 @@
-import os
 import platform
 
-# platform check code
+if platform.system() == "Darwin":
+    print("Mac OS User")
